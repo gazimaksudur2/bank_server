@@ -1,0 +1,30 @@
+{
+  "name": "bank_server",
+  "version": "1.0.0",
+  "description": "this is a bank server for my ecommerce web project",
+  "keywords": [
+    "bank",
+    "server"
+  ],
+  "homepage": "https://github.com/gazimaksudur2/bank_server#readme",
+  "bugs": {
+    "url": "https://github.com/gazimaksudur2/bank_server/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gazimaksudur2/bank_server.git"
+  },
+  "license": "ISC",
+  "author": "Gazi Maksudur Rahman",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongodb": "^6.12.0"
+  }
+}
