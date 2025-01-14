@@ -90,22 +90,65 @@ router
     res.send(result);
   })
   .post("/sendmoney", async (req, res) => {
+    const info = req.body;
+    const receiver = await usersCollection.findOne({
+      "accountInfo.account_no": info?.account_no,
+    });
+    const sender = await usersCollection.findOne({
+      "accountInfo.account_no": info?.sender,
+    });
+    if (receiver == null) {
+    //   return res.status(404).send({ message: "Receiver not found." });
+      return res.send({ message: "Receiver not found." });
+    } else if (
+      receiver?.accountInfo?.account_holder_name !== info?.recipent ||
+      receiver?.email !== info?.receiver_email
+    ) {
+        console.log(receiver, info);
+    //   return res.status(404).send({ message: "Receiver data mismatched." });
+      return res.send({ message: "Receiver data mismatched." });
+    } else if (sender?.accountInfo?.balance < info?.amount) {
+    //   return res.status(404).send({ message: "Insufficient balance." });
+      return res.send({ message: "Insufficient balance." });
+    }
     let txnID;
     while (true) {
       txnID = generateTransactionID();
       const demo_res = await transactionsCollection.findOne({ txnID });
       if (demo_res == null) break;
     }
-    const values = req.body;
     const result = await transactionsCollection.insertOne({
       txnID,
       txn_type: "send_money",
-      txn_status: "pending",
-      amount: values.amount,
-      sender: values.sender,
-      receiver: values.receiver,
+      txn_status: "success",
+      amount: info?.amount,
+      sender: sender?.accountInfo?.account_no,
+      receiver: receiver?.accountInfo?.account_no,
       txn_date: new Date(),
     });
+    const result2 = await usersCollection.updateOne(
+      { email: info?.receiver_email },
+      {
+        $set: {
+          "accountInfo.balance": parseFloat(
+            parseFloat(receiver?.accountInfo?.balance) +
+              parseFloat(info?.amount)
+          ),
+        },
+      }
+    );
+
+    const result3 = await usersCollection.updateOne(
+      { email: sender?.email },
+      {
+        $set: {
+          'accountInfo.balance': parseFloat(
+              parseFloat(sender.accountInfo.balance) - parseFloat(info?.amount)
+            ),
+        },
+      }
+    );
+    res.send(result);
   });
 
 module.exports = {
