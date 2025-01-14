@@ -1,8 +1,10 @@
 const express = require("express");
 const { client } = require("../db/mongodb");
+// const { getUsersCollection } = require("../db/mongodb");
 const router = express.Router();
 
 const usersCollection = client.db("bank").collection("users");
+// const usersCollection = getUsersCollection();
 
 function generateAccountNumber() {
   const timestamp = Date.now().toString(); // Current time in milliseconds
@@ -18,6 +20,8 @@ router
     let result;
     if (email) {
       result = await usersCollection.findOne({ email });
+    } else if(req.query?.account_no){
+      result = await usersCollection.findOne({"accountInfo.account_no": req.query?.account_no});
     } else result = await usersCollection.find().toArray();
     res.send(result);
   })
@@ -31,7 +35,13 @@ router
       result = await usersCollection.insertOne({ ...req.body });
     }
     res.send(result);
-  });
+  })
+  .delete('/', async(req, res)=>{
+    const email = req?.query?.email;
+    // console.log(req?.query);
+    const result = await usersCollection.deleteOne({ email });
+    res.send(result);
+  })
 
 module.exports = {
   userRouter: router,

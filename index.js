@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { userRouter } = require('./routers/users');
 const { run } = require('./db/mongodb');
 const { accountRouter } = require('./routers/account');
+const { transactionRouter } = require('./routers/transactions');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -15,7 +17,8 @@ app.get('/', (req, res)=>{
 })
 
 app.use('/users', userRouter);
-app.use('/account', accountRouter)
+app.use('/account', accountRouter);
+app.use('/transactions', transactionRouter);
 
 app.listen(port, async()=>{
     console.log(`Server is running on port ${port}`);
