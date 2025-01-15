@@ -155,20 +155,13 @@ router
   .post('/payment', async(req, res)=>{
     const info = req.body;
     const receiver = await usersCollection.findOne({
-      "accountInfo.account_no": info?.account_no,
+      "email": info?.receiver_email,
     });
     const sender = await usersCollection.findOne({
-      "accountInfo.account_no": info?.sender,
+      "email": info?.sender_email,
     });
     if (receiver == null) {
       return res.send({ message: "Receiver not found." });
-    } else if (
-      receiver?.accountInfo?.account_holder_name !== info?.recipent ||
-      receiver?.email !== info?.receiver_email
-    ) {
-        console.log(receiver, info);
-    //   return res.status(404).send({ message: "Receiver data mismatched." });
-      return res.send({ message: "Receiver data mismatched." });
     } else if (sender?.accountInfo?.balance < info?.amount) {
     //   return res.status(404).send({ message: "Insufficient balance." });
       return res.send({ message: "Insufficient balance." });
@@ -179,9 +172,11 @@ router
       const demo_res = await transactionsCollection.findOne({ txnID });
       if (demo_res == null) break;
     }
+    // console.log(info, sender, receiver);
+    // res.send({message: true});
     const result = await transactionsCollection.insertOne({
       txnID,
-      txn_type: "send_money",
+      txn_type: "payment",
       txn_status: "success",
       amount: info?.amount,
       sender: sender?.accountInfo?.account_no,
