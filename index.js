@@ -9,7 +9,10 @@ const { transactionRouter } = require('./routers/transactions');
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173", // Specify the allowed origin
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  }));
 app.use(express.json());
 
 app.get('/', (req, res)=>{

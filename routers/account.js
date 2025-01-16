@@ -23,7 +23,6 @@ function generateTransactionID() {
     const randomIndex = Math.floor(Math.random() * chars.length);
     transactionID += chars[randomIndex];
   }
-
   return transactionID;
 }
 
@@ -100,17 +99,17 @@ router
       "accountInfo.account_no": info?.sender,
     });
     if (receiver == null) {
-    //   return res.status(404).send({ message: "Receiver not found." });
+      //   return res.status(404).send({ message: "Receiver not found." });
       return res.send({ message: "Receiver not found." });
     } else if (
       receiver?.accountInfo?.account_holder_name !== info?.recipent ||
       receiver?.email !== info?.receiver_email
     ) {
-        console.log(receiver, info);
-    //   return res.status(404).send({ message: "Receiver data mismatched." });
+      console.log(receiver, info);
+      //   return res.status(404).send({ message: "Receiver data mismatched." });
       return res.send({ message: "Receiver data mismatched." });
     } else if (sender?.accountInfo?.balance < info?.amount) {
-    //   return res.status(404).send({ message: "Insufficient balance." });
+      //   return res.status(404).send({ message: "Insufficient balance." });
       return res.send({ message: "Insufficient balance." });
     }
     let txnID;
@@ -144,24 +143,26 @@ router
       { email: sender?.email },
       {
         $set: {
-          'accountInfo.balance': parseFloat(
-              parseFloat(sender.accountInfo.balance) - parseFloat(info?.amount)
-            ),
+          "accountInfo.balance": parseFloat(
+            parseFloat(sender.accountInfo.balance) - parseFloat(info?.amount)
+          ),
         },
       }
     );
     res.send(result);
   })
-  .post('/payment', async(req, res)=>{
+  .post("/payment", async (req, res) => {
     const info = req.body;
     const receiver = await usersCollection.findOne({
-      "email": info?.receiver_email,
+      email: info?.receiver_email,
     });
     const sender = await usersCollection.findOne({
-      "email": info?.sender_email,
+      email: info?.sender_email,
     });
     if (receiver == null) {
       return res.send({ message: "Receiver not found." });
+    } else if(info?.security!=sender?.accountInfo?.security){
+      return res.send({message: 'Invalid Bank Credential.'});
     } else if (sender?.accountInfo?.balance < info?.amount) {
     //   return res.status(404).send({ message: "Insufficient balance." });
       return res.send({ message: "Insufficient balance." });
@@ -172,6 +173,7 @@ router
       const demo_res = await transactionsCollection.findOne({ txnID });
       if (demo_res == null) break;
     }
+    // console.log(info, txnID, receiver, sender);
     // console.log(info, sender, receiver);
     // res.send({message: true});
     const result = await transactionsCollection.insertOne({
@@ -206,7 +208,8 @@ router
       }
     );
     res.send(result);
-  })
+    // res.send({ success: true });
+  });
 
 module.exports = {
   accountRouter: router,
