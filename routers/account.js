@@ -162,6 +162,7 @@ router
     if (receiver == null) {
       return res.send({ message: "Receiver not found." });
     } else if(info?.security!=sender?.accountInfo?.security){
+      console.log(info, sender?.accountInfo);
       return res.send({message: 'Invalid Bank Credential.'});
     } else if (sender?.accountInfo?.balance < info?.amount) {
     //   return res.status(404).send({ message: "Insufficient balance." });
